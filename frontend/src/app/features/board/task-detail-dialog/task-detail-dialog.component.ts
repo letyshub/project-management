@@ -17,11 +17,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
 import { Task, Comment, Label } from '../../../core/api/api.models';
 import { TaskService } from '../../../core/api/task.service';
 import { CommentService } from '../../../core/api/comment.service';
 import { LabelService } from '../../../core/api/label.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { MarkdownPipe } from '../../../shared/markdown.pipe';
 
 @Component({
   selector: 'app-task-detail-dialog',
@@ -36,14 +39,27 @@ import { LabelService } from '../../../core/api/label.service';
     MatChipsModule,
     MatMenuModule,
     MatDividerModule,
+    MatTooltipModule,
     DatePipe,
+    MarkdownPipe,
   ],
   template: `
     <div class="dialog-header">
       <h2 mat-dialog-title>Edit Task</h2>
-      <button mat-icon-button (click)="onDelete()" color="warn">
-        <mat-icon>delete</mat-icon>
-      </button>
+      <div class="dialog-header-actions">
+        @if (!isAssigned()) {
+          <button mat-icon-button (click)="assignToMe()" matTooltip="Assign to me">
+            <mat-icon>person_add</mat-icon>
+          </button>
+        } @else {
+          <button mat-icon-button (click)="unassign()" matTooltip="Unassign">
+            <mat-icon>person_remove</mat-icon>
+          </button>
+        }
+        <button mat-icon-button (click)="onDelete()" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
     </div>
     <mat-dialog-content>
       <form [formGroup]="form">
@@ -52,14 +68,22 @@ import { LabelService } from '../../../core/api/label.service';
           <input matInput formControlName="title" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea
-            matInput
-            formControlName="description"
-            rows="3"
-          ></textarea>
-        </mat-form-field>
+        @if (previewMode()) {
+          <div class="description-preview md-rendered" (click)="previewMode.set(false)">
+            <div class="preview-label">Description <span class="preview-hint">(click to edit)</span></div>
+            <div [innerHTML]="form.value.description | markdown"></div>
+          </div>
+        } @else {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description (supports **bold**, *italic*, \`code\`)</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              rows="3"
+              (blur)="onDescriptionBlur()"
+            ></textarea>
+          </mat-form-field>
+        }
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Priority</mat-label>
@@ -190,7 +214,7 @@ import { LabelService } from '../../../core/api/label.service';
         mat-flat-button
         color="primary"
         (click)="onSave()"
-        [disabled]="form.invalid || (form.pristine && !labelsChanged()) || saving()"
+        [disabled]="form.invalid || (form.pristine && !labelsChanged() && !assigneeChanged()) || saving()"
       >
         Save
       </button>
@@ -208,6 +232,33 @@ import { LabelService } from '../../../core/api/label.service';
     }
     .dialog-header h2 {
       font-weight: 600;
+    }
+    .dialog-header-actions {
+      display: flex;
+      gap: var(--space-xs);
+    }
+    .description-preview {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+      min-height: 60px;
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+      font-size: var(--font-size-base);
+      line-height: 1.6;
+      color: var(--color-text-primary);
+    }
+    .description-preview:hover {
+      border-color: var(--color-primary);
+    }
+    .preview-label {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .preview-hint {
+      color: var(--color-text-tertiary);
     }
     .section-header {
       display: flex;
@@ -304,6 +355,7 @@ export class TaskDetailDialogComponent implements OnInit {
   private taskService = inject(TaskService);
   private commentService = inject(CommentService);
   private labelService = inject(LabelService);
+  private authService = inject(AuthService);
   private dialogRef = inject(MatDialogRef<TaskDetailDialogComponent>);
   private data: { task: Task; projectId: string } = inject(MAT_DIALOG_DATA);
 
@@ -313,6 +365,10 @@ export class TaskDetailDialogComponent implements OnInit {
   availableLabels = signal<Label[]>([]);
   editingCommentId = signal<string | null>(null);
   labelsChanged = signal(false);
+  assigneeChanged = signal(false);
+  previewMode = signal(!!this.data.task.description);
+
+  private currentAssigneeId: string | null = this.data.task.assignee_id;
 
   form = this.fb.group({
     title: [this.data.task.title, Validators.required],
@@ -320,9 +376,31 @@ export class TaskDetailDialogComponent implements OnInit {
     priority: [this.data.task.priority],
   });
 
+  isAssigned() {
+    return !!this.currentAssigneeId;
+  }
+
   ngOnInit() {
     this.loadComments();
     this.loadLabels();
+  }
+
+  assignToMe() {
+    const userId = this.authService.user()?.id;
+    if (!userId) return;
+    this.currentAssigneeId = userId;
+    this.assigneeChanged.set(true);
+  }
+
+  unassign() {
+    this.currentAssigneeId = null;
+    this.assigneeChanged.set(true);
+  }
+
+  onDescriptionBlur() {
+    if (this.form.value.description) {
+      this.previewMode.set(true);
+    }
   }
 
   loadComments() {
@@ -401,19 +479,26 @@ export class TaskDetailDialogComponent implements OnInit {
   onSave() {
     if (this.form.invalid) return;
 
-    // If only labels changed (no form edits), just close to refresh the board
-    if (this.form.pristine) {
+    // If only labels changed (no form edits and no assignee change), just close
+    if (this.form.pristine && !this.assigneeChanged()) {
       this.dialogRef.close(true);
       return;
     }
 
     this.saving.set(true);
+
+    const payload: Record<string, unknown> = {};
+    if (this.form.dirty) {
+      if (this.form.value.title) payload['title'] = this.form.value.title;
+      if (this.form.value.description !== undefined) payload['description'] = this.form.value.description ?? '';
+      if (this.form.value.priority) payload['priority'] = this.form.value.priority;
+    }
+    if (this.assigneeChanged()) {
+      payload['assignee_id'] = this.currentAssigneeId;
+    }
+
     this.taskService
-      .update(this.data.task.id, {
-        title: this.form.value.title || undefined,
-        description: this.form.value.description ?? undefined,
-        priority: this.form.value.priority || undefined,
-      })
+      .update(this.data.task.id, payload as Parameters<TaskService['update']>[1])
       .subscribe({
         next: () => this.dialogRef.close(true),
         error: () => this.saving.set(false),

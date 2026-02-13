@@ -52,7 +52,7 @@ export class TaskService {
       title?: string;
       description?: string;
       priority?: string;
-      assignee_id?: string;
+      assignee_id?: string | null;
     },
   ) {
     return this.http
@@ -68,5 +68,20 @@ export class TaskService {
 
   delete(id: string) {
     return this.http.delete(`/api/v1/tasks/${id}`);
+  }
+
+  exportCsv(boardId: string) {
+    this.http
+      .get(`/api/v1/boards/${boardId}/tasks/export`, {
+        responseType: 'blob',
+      })
+      .subscribe((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tasks.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -17,10 +17,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Board, Column, Task, Label } from '../../../core/api/api.models';
 import { BoardService } from '../../../core/api/board.service';
 import { TaskService, TaskFilter } from '../../../core/api/task.service';
 import { LabelService } from '../../../core/api/label.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeService } from '../../../core/theme.service';
 import { TaskDetailDialogComponent } from '../task-detail-dialog/task-detail-dialog.component';
 import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dialog.component';
 
@@ -41,6 +44,7 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     MatInputModule,
     MatDialogModule,
     MatMenuModule,
+    MatTooltipModule,
   ],
   template: `
     <mat-toolbar>
@@ -49,6 +53,9 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
       </button>
       <span class="board-title">{{ board()?.name }}</span>
       <span class="spacer"></span>
+      <button mat-icon-button (click)="exportCsv()" matTooltip="Export to CSV">
+        <mat-icon>download</mat-icon>
+      </button>
       <button mat-icon-button [matMenuTriggerFor]="labelsMenu" matTooltip="Manage labels">
         <mat-icon>label</mat-icon>
       </button>
@@ -89,6 +96,9 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
           </div>
         </div>
       </mat-menu>
+      <button mat-icon-button (click)="theme.toggle()" [matTooltip]="theme.isDark() ? 'Light mode' : 'Dark mode'">
+        <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Priority</mat-label>
         <mat-select
@@ -137,6 +147,11 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
                       >
                         {{ task.priority }}
                       </span>
+                      @if (task.assignee_id) {
+                        <span class="assignee-avatar" [matTooltip]="task.assignee_id === currentUserId() ? 'Assigned to you' : 'Assigned'">
+                          {{ getInitial(task.assignee_id) }}
+                        </span>
+                      }
                     </div>
                   </div>
                 }
@@ -249,6 +264,7 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     .task-meta {
       display: flex;
       gap: var(--space-xs);
+      align-items: center;
     }
     .priority-badge {
       font-size: var(--font-size-xs);
@@ -268,6 +284,20 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     .priority-low {
       background: var(--color-priority-low-bg);
       color: var(--color-priority-low);
+    }
+    .assignee-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-left: auto;
     }
     .add-task-btn {
       margin: var(--space-xs) var(--space-sm) var(--space-sm);
@@ -343,6 +373,8 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
       outline: none;
       font-family: var(--font-family);
       transition: border-color var(--transition-fast);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
     }
     .label-input:focus {
       border-color: var(--color-primary);
@@ -363,7 +395,9 @@ export class BoardViewComponent implements OnInit {
   private boardService = inject(BoardService);
   private taskService = inject(TaskService);
   private labelService = inject(LabelService);
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
+  theme = inject(ThemeService);
 
   board = signal<Board | null>(null);
   columns = signal<Column[]>([]);
@@ -371,6 +405,8 @@ export class BoardViewComponent implements OnInit {
   projectLabels = signal<Label[]>([]);
   loading = signal(true);
   priorityFilter = '';
+
+  currentUserId = computed(() => this.authService.user()?.id ?? '');
 
   tasksByColumn = computed(() => {
     const map: Record<string, Task[]> = {};
@@ -384,6 +420,26 @@ export class BoardViewComponent implements OnInit {
     }
     return map;
   });
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key === 'n' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      const cols = this.columns();
+      if (cols.length > 0) {
+        this.openCreateTask(cols[0]);
+      }
+    }
+  }
+
+  getInitial(assigneeId: string): string {
+    if (assigneeId === this.currentUserId()) {
+      const email = this.authService.user()?.email;
+      return email ? email[0] : '?';
+    }
+    return '?';
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -479,6 +535,12 @@ export class BoardViewComponent implements OnInit {
     ref.afterClosed().subscribe((result) => {
       if (result) this.loadTasks();
     });
+  }
+
+  exportCsv() {
+    const id = this.board()?.id;
+    if (!id) return;
+    this.taskService.exportCsv(id);
   }
 
   loadProjectLabels() {

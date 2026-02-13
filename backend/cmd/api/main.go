@@ -75,6 +75,7 @@ func main() {
 	commentHandler := handler.NewCommentHandler(commentService)
 	labelHandler := handler.NewLabelHandler(labelService)
 	profileHandler := handler.NewProfileHandler(userRepo)
+	exportHandler := handler.NewExportHandler(taskService, boardService)
 
 	// Router
 	r := chi.NewRouter()
@@ -136,6 +137,7 @@ func main() {
 			r.Patch("/tasks/{taskID}", taskHandler.Update)
 			r.Put("/tasks/{taskID}/move", taskHandler.Move)
 			r.Delete("/tasks/{taskID}", taskHandler.Delete)
+			r.Get("/boards/{boardID}/tasks/export", exportHandler.TasksCSV)
 
 			// Comments
 			r.Post("/tasks/{taskID}/comments", commentHandler.Create)

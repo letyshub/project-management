@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +7,11 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Project } from '../../../core/api/api.models';
 import { ProjectService } from '../../../core/api/project.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeService } from '../../../core/theme.service';
 import { CreateProjectDialogComponent } from '../create-project-dialog/create-project-dialog.component';
 
 @Component({
@@ -22,6 +24,7 @@ import { CreateProjectDialogComponent } from '../create-project-dialog/create-pr
     MatToolbarModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   template: `
     <mat-toolbar>
@@ -30,6 +33,9 @@ import { CreateProjectDialogComponent } from '../create-project-dialog/create-pr
         <span class="toolbar-title">TaskFlow</span>
       </div>
       <span class="spacer"></span>
+      <button mat-icon-button (click)="theme.toggle()" [matTooltip]="theme.isDark() ? 'Light mode' : 'Dark mode'">
+        <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
       <button mat-icon-button [matMenuTriggerFor]="userMenu">
         <mat-icon>account_circle</mat-icon>
       </button>
@@ -258,9 +264,19 @@ export class ProjectListComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  theme = inject(ThemeService);
 
   projects = signal<Project[]>([]);
   loading = signal(true);
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key === 'p' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      this.openCreateDialog();
+    }
+  }
 
   ngOnInit() {
     this.loadProjects();

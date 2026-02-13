@@ -199,3 +199,49 @@ a {
     --font-size-3xl: 1.5rem;
   }
 }
+
+// --- Dark Theme ---
+.dark-theme {
+  --color-primary: #4dd0e1;
+  --color-primary-light: #80deea;
+  --color-primary-dark: #00acc1;
+  --color-accent: #26c6da;
+
+  --color-bg: #121218;
+  --color-surface: #1e1e26;
+  --color-surface-hover: #2a2a34;
+  --color-surface-variant: #25252e;
+  --color-border: #333340;
+  --color-border-light: #2a2a35;
+
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-text-inverse: #1e293b;
+
+  --color-success-bg: #064e3b;
+  --color-warning-bg: #78350f;
+  --color-error-bg: #7f1d1d;
+
+  --color-priority-high-bg: rgba(239, 68, 68, 0.15);
+  --color-priority-medium-bg: rgba(245, 158, 11, 0.15);
+  --color-priority-low-bg: rgba(16, 185, 129, 0.15);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+}
+
+// --- Markdown Styles ---
+.md-rendered {
+  code.md-code {
+    background: var(--color-surface-variant);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+  }
+  strong { font-weight: 600; }
+  a { color: var(--color-primary); }
+}
