@@ -1,5 +1,12 @@
 # Task Flow
 
+[![Backend CI](https://github.com/letyshub/task-flow/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/letyshub/task-flow/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/letyshub/task-flow/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/letyshub/task-flow/actions/workflows/frontend-ci.yml)
+![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-19-DD0031?logo=angular&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 A full-stack task and project management application (mini Jira) with Kanban boards, drag-and-drop, comments, labels, and JWT authentication.
 
 ## Tech Stack
