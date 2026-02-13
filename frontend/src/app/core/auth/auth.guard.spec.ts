@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { authGuard, guestGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
@@ -26,7 +31,7 @@ describe('Auth Guards', () => {
       mockAuthService.isAuthenticated.and.returnValue(true);
 
       const result = TestBed.runInInjectionContext(() =>
-        authGuard({} as any, {} as any)
+        authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
       );
 
       expect(result).toBe(true);
@@ -36,7 +41,7 @@ describe('Auth Guards', () => {
       mockAuthService.isAuthenticated.and.returnValue(false);
 
       const result = TestBed.runInInjectionContext(() =>
-        authGuard({} as any, {} as any)
+        authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
       );
 
       expect(result).toBe(mockUrlTree);
@@ -49,7 +54,7 @@ describe('Auth Guards', () => {
       mockAuthService.isAuthenticated.and.returnValue(false);
 
       const result = TestBed.runInInjectionContext(() =>
-        guestGuard({} as any, {} as any)
+        guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
       );
 
       expect(result).toBe(true);
@@ -59,7 +64,7 @@ describe('Auth Guards', () => {
       mockAuthService.isAuthenticated.and.returnValue(true);
 
       const result = TestBed.runInInjectionContext(() =>
-        guestGuard({} as any, {} as any)
+        guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
       );
 
       expect(result).toBe(mockUrlTree);
