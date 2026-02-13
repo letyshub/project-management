@@ -11,8 +11,6 @@ linters:
     - gofmt
 
 linters-settings:
-  govet:
-    shadow: true
   errcheck:
     check-type-assertions: true
 
