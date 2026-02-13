@@ -43,11 +43,11 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     MatMenuModule,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="goBack()">
+    <mat-toolbar>
+      <button mat-icon-button (click)="goBack()" class="back-btn">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <span>{{ board()?.name }}</span>
+      <span class="board-title">{{ board()?.name }}</span>
       <span class="spacer"></span>
       <button mat-icon-button [matMenuTriggerFor]="labelsMenu" matTooltip="Manage labels">
         <mat-icon>label</mat-icon>
@@ -158,112 +158,132 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     .spacer {
       flex: 1;
     }
+    .back-btn {
+      margin-right: var(--space-sm);
+    }
+    .board-title {
+      font-weight: 600;
+      font-size: var(--font-size-lg);
+    }
     .filter-field {
       width: 140px;
-      margin: 0 8px;
+      margin: 0 var(--space-sm);
     }
     .filter-field .mat-mdc-form-field-subscript-wrapper {
       display: none;
     }
     .board-container {
-      padding: 16px;
+      padding: var(--space-xl);
       overflow-x: auto;
       height: calc(100vh - 64px);
+      background: var(--color-bg);
     }
     .center {
       display: flex;
       justify-content: center;
-      padding: 48px;
+      padding: var(--space-3xl);
     }
     .columns-row {
       display: flex;
-      gap: 16px;
+      gap: var(--space-lg);
       align-items: flex-start;
       min-height: 200px;
     }
     .column {
-      min-width: 280px;
-      max-width: 320px;
-      background: #f5f5f5;
-      border-radius: 8px;
+      min-width: 290px;
+      max-width: 330px;
+      background: var(--color-surface-variant);
+      border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
+      border: 1px solid var(--color-border-light);
     }
     .column-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid #e0e0e0;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     .column-header h3 {
       margin: 0;
-      font-size: 14px;
-      font-weight: 600;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
       text-transform: uppercase;
-      color: #555;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.05em;
     }
     .task-count {
-      background: #e0e0e0;
-      border-radius: 10px;
+      background: var(--color-border);
+      border-radius: var(--radius-full);
       padding: 2px 8px;
-      font-size: 12px;
-      color: #666;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      font-weight: 600;
     }
     .column-body {
-      padding: 8px;
+      padding: var(--space-sm);
       min-height: 60px;
     }
     .task-card {
-      background: white;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 8px;
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-sm);
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition:
-        box-shadow 0.2s,
-        transform 0.2s;
+      box-shadow: var(--shadow-xs);
+      border: 1px solid var(--color-border-light);
+      transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
     }
     .task-card:hover {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-border);
+      transform: translateY(-1px);
     }
     .task-title {
-      font-size: 14px;
-      margin-bottom: 8px;
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      margin-bottom: var(--space-sm);
+      color: var(--color-text-primary);
     }
     .task-meta {
       display: flex;
-      gap: 6px;
+      gap: var(--space-xs);
     }
     .priority-badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 500;
+      font-size: var(--font-size-xs);
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
       text-transform: capitalize;
     }
     .priority-high {
-      background: #fdecea;
-      color: #c62828;
+      background: var(--color-priority-high-bg);
+      color: var(--color-priority-high);
     }
     .priority-medium {
-      background: #fff3e0;
-      color: #e65100;
+      background: var(--color-priority-medium-bg);
+      color: var(--color-priority-medium);
     }
     .priority-low {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: var(--color-priority-low-bg);
+      color: var(--color-priority-low);
     }
     .add-task-btn {
-      margin: 4px 8px 8px;
-      color: #888;
+      margin: var(--space-xs) var(--space-sm) var(--space-sm);
+      color: var(--color-text-tertiary);
+      border-radius: var(--radius-md);
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .add-task-btn:hover {
+      color: var(--color-primary);
+      background: rgba(0, 151, 167, 0.06);
     }
     .cdk-drag-preview {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      border-radius: 6px;
-      background: white;
-      padding: 12px;
+      box-shadow: var(--shadow-xl);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      padding: var(--space-md);
     }
     .cdk-drag-placeholder {
       opacity: 0.3;
@@ -272,24 +292,24 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
       transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
     .labels-menu-content {
-      padding: 8px 12px;
-      min-width: 220px;
+      padding: var(--space-sm) var(--space-md);
+      min-width: 240px;
     }
     .labels-menu-header {
-      font-weight: 500;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-sm);
     }
     .label-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
       padding: 2px 0;
     }
     .label-row .label-name {
       flex: 1;
-      font-size: 13px;
+      font-size: var(--font-size-sm);
     }
     .label-row button {
       width: 24px;
@@ -309,18 +329,23 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
     .label-create-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-top: 8px;
-      border-top: 1px solid #eee;
-      padding-top: 8px;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+      border-top: 1px solid var(--color-border-light);
+      padding-top: var(--space-sm);
     }
     .label-input {
       flex: 1;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 13px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--font-size-sm);
       outline: none;
+      font-family: var(--font-family);
+      transition: border-color var(--transition-fast);
+    }
+    .label-input:focus {
+      border-color: var(--color-primary);
     }
     .label-color {
       width: 28px;
@@ -328,7 +353,7 @@ import { CreateTaskDialogComponent } from '../create-task-dialog/create-task-dia
       border: none;
       padding: 0;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
     }
   `,
 })

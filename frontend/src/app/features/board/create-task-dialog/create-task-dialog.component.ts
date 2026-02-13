@@ -26,7 +26,7 @@ import { TaskService } from '../../../core/api/task.service';
     MatButtonModule,
   ],
   template: `
-    <h2 mat-dialog-title>New Task</h2>
+    <h2 mat-dialog-title class="dialog-title">New Task</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
         <mat-form-field appearance="outline" class="full-width">
@@ -64,6 +64,9 @@ import { TaskService } from '../../../core/api/task.service';
   styles: `
     .full-width {
       width: 100%;
+    }
+    .dialog-title {
+      font-weight: 600;
     }
   `,
 })

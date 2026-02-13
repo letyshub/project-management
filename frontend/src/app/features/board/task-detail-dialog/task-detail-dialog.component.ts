@@ -89,20 +89,20 @@ import { LabelService } from '../../../core/api/label.service';
           }
         </mat-menu>
       </div>
-      <div class="labels-row">
+      <mat-chip-set class="labels-row">
         @for (label of taskLabels(); track label.id) {
-          <mat-chip-row (removed)="removeLabel(label)">
+          <mat-chip (removed)="removeLabel(label)">
             <span class="label-dot" [style.background]="label.color"></span>
             {{ label.name }}
             <button matChipRemove>
               <mat-icon>cancel</mat-icon>
             </button>
-          </mat-chip-row>
+          </mat-chip>
         }
         @if (taskLabels().length === 0) {
           <span class="empty-text">No labels</span>
         }
-      </div>
+      </mat-chip-set>
 
       <mat-divider></mat-divider>
 
@@ -190,7 +190,7 @@ import { LabelService } from '../../../core/api/label.service';
         mat-flat-button
         color="primary"
         (click)="onSave()"
-        [disabled]="form.invalid || form.pristine || saving()"
+        [disabled]="form.invalid || (form.pristine && !labelsChanged()) || saving()"
       >
         Save
       </button>
@@ -204,24 +204,29 @@ import { LabelService } from '../../../core/api/label.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-right: 8px;
+      padding-right: var(--space-sm);
+    }
+    .dialog-header h2 {
+      font-weight: 600;
     }
     .section-header {
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 8px;
+      gap: var(--space-xs);
+      margin-top: var(--space-md);
     }
     .section-title {
-      font-weight: 500;
-      font-size: 14px;
-      color: #555;
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
     .labels-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 12px;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
       min-height: 32px;
       align-items: center;
     }
@@ -230,19 +235,19 @@ import { LabelService } from '../../../core/api/label.service';
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      margin-right: 6px;
+      margin-right: var(--space-xs);
     }
     mat-divider {
-      margin: 12px 0;
+      margin: var(--space-md) 0;
     }
     .comments-list {
       max-height: 200px;
       overflow-y: auto;
-      margin-bottom: 8px;
+      margin-bottom: var(--space-sm);
     }
     .comment {
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-border-light);
     }
     .comment:last-child {
       border-bottom: none;
@@ -262,33 +267,35 @@ import { LabelService } from '../../../core/api/label.service';
       height: 28px;
     }
     .comment-date {
-      font-size: 12px;
-      color: #999;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-tertiary);
     }
     .comment-content {
-      margin: 4px 0 0;
-      font-size: 14px;
+      margin: var(--space-xs) 0 0;
+      font-size: var(--font-size-base);
       white-space: pre-wrap;
+      color: var(--color-text-primary);
     }
     .comment-edit-actions {
       display: flex;
-      gap: 8px;
+      gap: var(--space-sm);
       justify-content: flex-end;
     }
     .new-comment {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: var(--space-sm);
     }
     .new-comment mat-form-field {
       flex: 1;
     }
     .new-comment button {
-      margin-top: 4px;
+      margin-top: var(--space-xs);
+      border-radius: var(--radius-md) !important;
     }
     .empty-text {
-      font-size: 13px;
-      color: #999;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
     }
   `,
 })
@@ -305,6 +312,7 @@ export class TaskDetailDialogComponent implements OnInit {
   taskLabels = signal<Label[]>([]);
   availableLabels = signal<Label[]>([]);
   editingCommentId = signal<string | null>(null);
+  labelsChanged = signal(false);
 
   form = this.fb.group({
     title: [this.data.task.title, Validators.required],
@@ -346,13 +354,19 @@ export class TaskDetailDialogComponent implements OnInit {
   addLabel(label: Label) {
     this.labelService
       .addToTask(this.data.task.id, label.id)
-      .subscribe(() => this.loadLabels());
+      .subscribe(() => {
+        this.labelsChanged.set(true);
+        this.loadLabels();
+      });
   }
 
   removeLabel(label: Label) {
     this.labelService
       .removeFromTask(this.data.task.id, label.id)
-      .subscribe(() => this.loadLabels());
+      .subscribe(() => {
+        this.labelsChanged.set(true);
+        this.loadLabels();
+      });
   }
 
   addComment(content: string) {
@@ -386,8 +400,14 @@ export class TaskDetailDialogComponent implements OnInit {
 
   onSave() {
     if (this.form.invalid) return;
-    this.saving.set(true);
 
+    // If only labels changed (no form edits), just close to refresh the board
+    if (this.form.pristine) {
+      this.dialogRef.close(true);
+      return;
+    }
+
+    this.saving.set(true);
     this.taskService
       .update(this.data.task.id, {
         title: this.form.value.title || undefined,

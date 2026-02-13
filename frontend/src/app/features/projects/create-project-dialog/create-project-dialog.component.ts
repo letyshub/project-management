@@ -20,7 +20,7 @@ import { ProjectService } from '../../../core/api/project.service';
     MatButtonModule,
   ],
   template: `
-    <h2 mat-dialog-title>New Project</h2>
+    <h2 mat-dialog-title class="dialog-title">New Project</h2>
     <mat-dialog-content>
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
@@ -49,6 +49,9 @@ import { ProjectService } from '../../../core/api/project.service';
   styles: `
     .full-width {
       width: 100%;
+    }
+    .dialog-title {
+      font-weight: 600;
     }
   `,
 })

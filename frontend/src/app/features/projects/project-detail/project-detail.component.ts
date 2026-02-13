@@ -19,11 +19,11 @@ import { BoardService } from '../../../core/api/board.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="goBack()">
+    <mat-toolbar>
+      <button mat-icon-button (click)="goBack()" class="back-btn">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <span>{{ project()?.name }}</span>
+      <span class="toolbar-title">{{ project()?.name }}</span>
     </mat-toolbar>
 
     <div class="content">
@@ -32,10 +32,15 @@ import { BoardService } from '../../../core/api/board.service';
           <mat-spinner diameter="40"></mat-spinner>
         </div>
       } @else {
-        <h3>Boards</h3>
+        <div class="section-header">
+          <h3 class="section-title">Boards</h3>
+        </div>
 
         @if (boards().length === 0) {
-          <p class="muted">No boards found.</p>
+          <div class="empty">
+            <mat-icon class="empty-icon">view_kanban</mat-icon>
+            <p class="muted">No boards found.</p>
+          </div>
         } @else {
           <div class="grid">
             @for (board of boards(); track board.id) {
@@ -44,8 +49,10 @@ import { BoardService } from '../../../core/api/board.service';
                 (click)="openBoard(board)"
                 tabindex="0"
               >
+                <div class="card-accent"></div>
                 <mat-card-header>
-                  <mat-card-title>{{ board.name }}</mat-card-title>
+                  <mat-icon class="board-icon" mat-card-avatar>view_kanban</mat-icon>
+                  <mat-card-title class="board-name">{{ board.name }}</mat-card-title>
                 </mat-card-header>
               </mat-card>
             }
@@ -55,32 +62,74 @@ import { BoardService } from '../../../core/api/board.service';
     </div>
   `,
   styles: `
+    .back-btn {
+      margin-right: var(--space-sm);
+    }
+    .toolbar-title {
+      font-weight: 600;
+      font-size: var(--font-size-lg);
+    }
     .content {
-      max-width: 960px;
-      margin: 24px auto;
-      padding: 0 16px;
+      max-width: 1080px;
+      margin: var(--space-2xl) auto;
+      padding: 0 var(--space-xl);
     }
     .center {
       display: flex;
       justify-content: center;
-      padding: 48px;
+      padding: var(--space-3xl);
+    }
+    .section-header {
+      margin-bottom: var(--space-lg);
+    }
+    .section-title {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--color-text-primary);
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-lg);
     }
     .board-card {
       cursor: pointer;
-      transition: box-shadow 0.2s;
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+      overflow: hidden;
     }
     .board-card:hover {
-      box-shadow:
-        0 4px 8px rgba(0, 0, 0, 0.12),
-        0 2px 4px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .card-accent {
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    }
+    .board-icon {
+      color: var(--color-primary);
+      background: rgba(0, 151, 167, 0.08);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .board-name {
+      font-weight: 600;
+    }
+    .empty {
+      text-align: center;
+      padding: var(--space-3xl);
+    }
+    .empty-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--color-text-tertiary);
     }
     .muted {
-      color: #999;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-sm);
     }
   `,
 })

@@ -69,43 +69,49 @@ import { User } from '../../core/auth/auth.models';
   `,
   styles: `
     .profile-container {
-      max-width: 500px;
-      margin: 32px auto;
-      padding: 0 16px;
+      max-width: 520px;
+      margin: var(--space-2xl) auto;
+      padding: 0 var(--space-xl);
     }
     .back-btn {
-      margin-bottom: 8px;
+      margin-bottom: var(--space-sm);
     }
     .profile-card {
-      padding: 16px;
+      padding: var(--space-xl);
     }
     .avatar {
-      background: #e0e0e0;
+      background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
     }
     .avatar mat-icon {
-      color: #666;
+      color: var(--color-text-inverse);
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
     }
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-border-light);
     }
     .label {
       font-weight: 500;
-      color: #555;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
     }
     .value {
-      color: #333;
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
     }
     .edit-form {
-      margin-top: 16px;
+      margin-top: var(--space-xl);
     }
     .full-width {
       width: 100%;

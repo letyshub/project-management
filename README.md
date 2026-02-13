@@ -46,6 +46,28 @@ project-management/
 └── docker-compose.yml        # Development environment
 ```
 
+## Screenshots
+
+### Login
+Clean authentication page with gradient background and branded header.
+
+![Login](screenshots/login.png)
+
+### Projects Dashboard
+Project cards with hover effects, accent stripes, and priority-based organization.
+
+![Projects](screenshots/projects.png)
+
+### Kanban Board
+Drag-and-drop board with color-coded priority badges and column task counts.
+
+![Board](screenshots/board.png)
+
+### Task Editor
+Edit tasks with labels, comments, and priority — all within a polished dialog.
+
+![Task Editor](screenshots/task-edit-with-label.png)
+
 ## Getting Started
 
 ### Prerequisites
