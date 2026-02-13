@@ -55,7 +55,7 @@ func (m *mockProjectRepo) Delete(ctx context.Context, id uuid.UUID) error {
 
 type mockBoardRepo struct{}
 
-func (m *mockBoardRepo) Create(ctx context.Context, board *domain.Board) error   { return nil }
+func (m *mockBoardRepo) Create(ctx context.Context, board *domain.Board) error { return nil }
 func (m *mockBoardRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Board, error) {
 	return nil, domain.ErrNotFound
 }

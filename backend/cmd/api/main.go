@@ -15,8 +15,8 @@ import (
 
 	"github.com/letyshub/project-management/internal/config"
 	"github.com/letyshub/project-management/internal/handler"
-	"github.com/letyshub/project-management/internal/migrate"
 	"github.com/letyshub/project-management/internal/middleware"
+	"github.com/letyshub/project-management/internal/migrate"
 	"github.com/letyshub/project-management/internal/repository/postgres"
 	"github.com/letyshub/project-management/internal/service"
 )

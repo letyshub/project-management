@@ -85,7 +85,6 @@ func (r *TaskRepo) ListByBoard(ctx context.Context, boardID uuid.UUID, filter do
 	if filter.AssigneeID != nil {
 		conditions = append(conditions, fmt.Sprintf("t.assignee_id = $%d", argIdx))
 		args = append(args, *filter.AssigneeID)
-		argIdx++
 	}
 
 	query := fmt.Sprintf(`
