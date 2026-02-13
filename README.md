@@ -129,6 +129,79 @@ npx ng serve
 
 Open `http://localhost:4201` in your browser.
 
+## Testing
+
+### Quick Start
+
+```bash
+make test            # Run all tests (backend + frontend)
+make test-backend    # Run backend tests only
+make test-frontend   # Run frontend tests only
+make lint            # Run all linters
+```
+
+### Backend Tests
+
+The Go backend uses the standard `testing` package with `httptest` for HTTP handler tests and hand-written mock interfaces for service-layer tests.
+
+```bash
+cd backend
+go test ./...                              # Run all tests
+go test -v -race ./...                     # Verbose with race detection
+go test -v -race -coverprofile=cover.out ./...  # With coverage report
+go tool cover -html=cover.out              # View coverage in browser
+```
+
+**Test structure:**
+
+| Layer | Pattern | Example |
+|-------|---------|---------|
+| Handler | `httptest.NewRequest` + `httptest.NewRecorder` | `handler/health_test.go` |
+| Response | Table-driven tests for error mapping | `handler/response_test.go` |
+| Service | Mock repository interfaces | `service/project_service_test.go` |
+
+### Frontend Tests
+
+The Angular frontend uses **Jasmine** + **Karma** with `HttpClientTestingModule` for service tests and `TestBed` for component tests.
+
+```bash
+cd frontend
+npm test                                        # Watch mode
+npx ng test --watch=false --browsers=ChromeHeadless  # CI mode (headless)
+npx ng test --code-coverage                     # With coverage report
+```
+
+Coverage reports are generated in `frontend/coverage/`.
+
+**Test structure:**
+
+| Layer | Pattern | Example |
+|-------|---------|---------|
+| Service | `HttpTestingController` + request assertions | `core/api/project.service.spec.ts` |
+| Guard | `TestBed.runInInjectionContext` + spy objects | `core/auth/auth.guard.spec.ts` |
+| Component | `TestBed` + fixture + signal assertions | `features/projects/project-list/project-list.component.spec.ts` |
+
+### E2E Tests
+
+End-to-end tests use **Playwright** and require the full stack running locally.
+
+```bash
+cd e2e
+npm test                # Run headless
+npm run test:headed     # Run with browser visible
+```
+
+Test suites cover authentication, project management, and kanban board workflows.
+
+### CI/CD
+
+GitHub Actions run automatically on push to `main` and on pull requests:
+
+- **Backend CI** (`.github/workflows/backend-ci.yml`): Lint (golangci-lint) → Test (with PostgreSQL, race detection, coverage) → Build
+- **Frontend CI** (`.github/workflows/frontend-ci.yml`): Lint (ESLint) → Test (Karma headless, coverage) → Build
+
+Both pipelines upload coverage artifacts to GitHub Actions.
+
 ## API Endpoints
 
 ### Auth (Public)
