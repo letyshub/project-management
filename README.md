@@ -1,4 +1,4 @@
-# Project Management App
+# Task Flow
 
 A full-stack task and project management application (mini Jira) with Kanban boards, drag-and-drop, comments, labels, and JWT authentication.
 
@@ -24,7 +24,7 @@ A full-stack task and project management application (mini Jira) with Kanban boa
 ## Project Structure
 
 ```
-project-management/
+task-flow/
 ├── backend/                  # Go REST API
 │   ├── cmd/api/              # Application entrypoint
 │   ├── internal/
