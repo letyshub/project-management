@@ -1,6 +1,6 @@
 module github.com/letyshub/project-management
 
-go 1.25.7
+go 1.24.5
 
 require (
 	github.com/go-chi/chi/v5 v5.2.5

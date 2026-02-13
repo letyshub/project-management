@@ -4,7 +4,7 @@ A full-stack task and project management application (mini Jira) with Kanban boa
 
 ## Tech Stack
 
-**Backend:** Go 1.23 with Chi v5 router, pgx v5 (PostgreSQL driver), JWT authentication
+**Backend:** Go 1.24 with Chi v5 router, pgx v5 (PostgreSQL driver), JWT authentication
 **Frontend:** Angular 19 (standalone components), Angular Material, Angular CDK drag-and-drop
 **Database:** PostgreSQL 16
 **DevOps:** Docker Compose, multi-stage Dockerfiles
@@ -50,32 +50,42 @@ project-management/
 
 ### Prerequisites
 
-- Go 1.23+
+- Go 1.24+
 - Node.js 20+
 - PostgreSQL 16+ (or Docker)
 
 ### Quick Start with Docker
 
 ```bash
+cp backend/.env.example backend/.env  # create .env from template, then edit as needed
 docker compose up -d
 ```
 
 This starts:
-- **API** at `http://localhost:8080` (with hot-reload via Air)
-- **Frontend** at `http://localhost:4200`
-- **PostgreSQL** at `localhost:5432`
+- **API** at `http://localhost:3080` (with hot-reload via Air)
+- **Frontend** at `http://localhost:4201`
+- **PostgreSQL** at `localhost:5439`
 
 ### Manual Setup
 
 **Database:**
 
-```bash
-# Create database
-createdb project_management
+If using Docker Compose, the database is created automatically (`POSTGRES_DB: project_management`). Just run migrations:
 
-# Run migrations
+```bash
 cd backend
-for f in migrations/*.up.sql; do psql -d project_management -f "$f"; done
+for f in migrations/*.up.sql; do
+  docker compose exec -T db psql -U postgres -d project_management -f - < "$f"
+done
+```
+
+If using a local PostgreSQL installation:
+
+```bash
+psql -U postgres -c "CREATE DATABASE project_management;"
+
+cd backend
+for f in migrations/*.up.sql; do psql -U postgres -d project_management -f "$f"; done
 ```
 
 **Backend:**
@@ -95,7 +105,7 @@ npm ci
 npx ng serve
 ```
 
-Open `http://localhost:4200` in your browser.
+Open `http://localhost:4201` in your browser.
 
 ## API Endpoints
 
@@ -163,7 +173,7 @@ Open `http://localhost:4200` in your browser.
 ```env
 # backend/.env
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5439
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=project_management
@@ -172,7 +182,7 @@ SERVER_PORT=8080
 JWT_SECRET=your-secret-key
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=168h
-CORS_ORIGINS=http://localhost:4200
+CORS_ORIGINS=http://localhost:4201
 ```
 
 ## Architecture Decisions

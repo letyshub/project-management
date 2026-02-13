@@ -15,6 +15,7 @@ import (
 
 	"github.com/letyshub/project-management/internal/config"
 	"github.com/letyshub/project-management/internal/handler"
+	"github.com/letyshub/project-management/internal/migrate"
 	"github.com/letyshub/project-management/internal/middleware"
 	"github.com/letyshub/project-management/internal/repository/postgres"
 	"github.com/letyshub/project-management/internal/service"
@@ -40,6 +41,12 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Info("connected to database")
+
+	// Run migrations
+	if err := migrate.Run(context.Background(), pool, "migrations"); err != nil {
+		slog.Error("failed to run migrations", "error", err)
+		os.Exit(1)
+	}
 
 	// Repositories
 	userRepo := postgres.NewUserRepo(pool)

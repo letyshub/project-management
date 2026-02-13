@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     ports:
-      - "8080:8080"
+      - "3080:8080"
     volumes:
       - ./backend:/app
       - go-modules:/go/pkg/mod
@@ -21,7 +21,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
-      - "4200:4200"
+      - "4201:4200"
     volumes:
       - ./frontend:/app
       - node-modules:/app/node_modules
@@ -33,7 +33,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "5439:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
